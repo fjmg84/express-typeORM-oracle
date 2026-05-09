@@ -19,7 +19,7 @@ module.exports = new EntitySchema({
     createdAt: {
       name: 'created_at',
       type: 'timestamp',
-      default: 'now()',
+      default: 'CURRENT_TIMESTAMP',
     },
   },
 });

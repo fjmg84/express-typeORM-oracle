@@ -1,38 +1,37 @@
-version: '3.8'
-
 services:
   node:
     build:
       context: ./node
       dockerfile: Dockerfile
+    platform: linux/amd64
     ports:
       - "3000:3000"
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
+      - DB_HOST=oracle
+      - DB_PORT=1521
       - DB_USER=app_user
       - DB_PASSWORD=apppassword
-      - DB_NAME=appdb
+      - DB_SERVICE=XE
     depends_on:
-      - postgres
+      - oracle
     networks:
       - app-network
 
-  postgres:
-    image: postgres:16-alpine
+  oracle:
+    image: container-registry.oracle.com/database/express:21.3.0-xe
+    platform: linux/amd64
     environment:
-      POSTGRES_USER: app_user
-      POSTGRES_PASSWORD: apppassword
-      POSTGRES_DB: appdb
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD:-apppassword}
     ports:
-      - "5432:5432"
+      - "1521:1521"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - oracle_data:/opt/oracle/oradata
+      - ./oracle/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
 
 volumes:
-  postgres_data:
+  oracle_data:
 
 networks:
   app-network:
