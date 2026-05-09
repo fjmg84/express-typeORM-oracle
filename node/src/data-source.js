@@ -1,16 +1,20 @@
+require('reflect-metadata');
+require('dotenv').config();
 const { DataSource } = require('typeorm');
-const User = require('./entities/User');
+
+const isProduction = process.env.NODE_ENV === "production";
 
 const dataSource = new DataSource({
-  type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  username: process.env.DB_USER || 'app_user',
-  password: process.env.DB_PASSWORD || 'apppassword',
-  database: process.env.DB_NAME || 'appdb',
-  synchronize: true,
-  logging: false,
-  entities: [User],
+    type: isProduction ? "oracle" : "postgres",
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT || (isProduction ? "1521" : "5432")),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: isProduction ? undefined : process.env.DB_NAME,
+    sid: isProduction ? process.env.DB_SERVICE : undefined,
+    synchronize: !isProduction,
+    logging: true,
+    entities: [require('./entities/User')],
 });
 
 module.exports = dataSource;
